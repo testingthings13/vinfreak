@@ -10,3 +10,6 @@ build/
 
 # archives
 *.tar.gz
+
+# allow example env
+!frontend/.env.example
