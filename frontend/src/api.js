@@ -1,7 +1,7 @@
 // Unified API helper that supports both array and {items,total,...} responses
 const BASE = (import.meta.env.VITE_API_BASE ?? window.location.origin).replace(/\/+$/, "");
 
-// Map filter state to URLSearchParams your backend likely expects.
+// Map filters -> URLSearchParams
 function toParams(filters = {}, paging = {}) {
   const p = new URLSearchParams();
   const { page = 1, pageSize = 24, limit, offset } = paging;
@@ -12,6 +12,8 @@ function toParams(filters = {}, paging = {}) {
     p.set("page", String(page));
     p.set("page_size", String(pageSize));
   }
+
+  // Filters
   if (filters.q) p.set("q", filters.q);
   if (filters.vin) p.set("vin", filters.vin);
   if (filters.make) p.set("make", filters.make);
@@ -21,6 +23,8 @@ function toParams(filters = {}, paging = {}) {
   if (filters.priceMin) p.set("price_min", String(filters.priceMin));
   if (filters.priceMax) p.set("price_max", String(filters.priceMax));
   if (filters.source) p.set("source", filters.source);
+  if (filters.sort) p.set("sort", filters.sort); // pass-through sort key
+
   return p;
 }
 
@@ -35,19 +39,4 @@ export async function getCars(filters = {}, paging = {}) {
   const items = Array.isArray(data.items) ? data.items : [];
   const total = typeof data.total === "number" ? data.total : items.length;
   return { items, total, page: data.page ?? paging.page ?? 1, pageSize: data.page_size ?? paging.pageSize ?? items.length };
-}
-
-// Fetch ALL pages (careful for huge datasets)
-export async function getAllCars(filters = {}, { pageSize = 100 } = {}) {
-  let page = 1;
-  const all = [];
-  while (true) {
-    const { items, total } = await getCars(filters, { page, pageSize });
-    if (!items.length) break;
-    all.push(...items);
-    if (total && all.length >= total) break;
-    page++;
-    if (page > 1000) break; // guard
-  }
-  return all;
 }

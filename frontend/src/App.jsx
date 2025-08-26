@@ -1,33 +1,9 @@
 import { useEffect, useState } from "react";
 import "./App.css";
 import { getCars } from "./api";
-import FilterBar from "./FilterBar";
-
-function formatMoney(n, curr = "USD") {
-  if (n == null) return "—";
-  try { return new Intl.NumberFormat(undefined, { style: "currency", currency: curr }).format(n); }
-  catch { return String(n); }
-}
-
-function Card({ car }) {
-  const isCAB = (car?.source || "").toLowerCase().includes("carsandbids");
-  return (
-    <a className="car-card" href={car.url || "#"} target="_blank" rel="noreferrer">
-      <div className="thumb">
-        {isCAB && <img className="brand" src="/carsandbidslogo.png" alt="Cars & Bids" />}
-      </div>
-      <div className="meta">
-        <div className="title">{car.title || `${car.year ?? ""} ${car.make ?? ""} ${car.model ?? ""}`}</div>
-        <div className="sub">
-          <span>{car.city || ""}{car.state ? `, ${car.state}` : ""}</span>
-          <span>•</span>
-          <span>{car.mileage != null ? `${Number(car.mileage).toLocaleString()} mi` : "—"}</span>
-        </div>
-        <div className="price">{formatMoney(car.price, car.currency || "USD")}</div>
-      </div>
-    </a>
-  );
-}
+import FilterBar from "./components/FilterBar";
+import CarCard from "./components/CarCard";
+import SkeletonCard from "./components/SkeletonCard";
 
 export default function App() {
   const [filters, setFilters] = useState({});
@@ -54,37 +30,47 @@ export default function App() {
     }
   }
 
+  // initial load + on filter change
   useEffect(() => { load(true); /* eslint-disable-next-line */ }, []);
   useEffect(() => { load(true); /* eslint-disable-next-line */ }, [JSON.stringify(filters)]);
 
   const canLoadMore = total ? cars.length < total : true;
 
   return (
-    <div className="container">
-      <h1>VINFREAK</h1>
+    <div className="wrap">
+      <header className="topbar">
+        <div className="brand">VINFREAK</div>
+        <div className="hint">Search by VIN, make, model, year, price</div>
+      </header>
 
-      <FilterBar initial={filters} onChange={setFilters} />
+      <main className="main">
+        <FilterBar initial={filters} onChange={setFilters} />
 
-      {err && <div className="error">Error: {err}</div>}
-      {!err && (
-        <>
-          <div style={{marginBottom:8, color:"#6b7280"}}>
-            Showing <b>{cars.length}</b>{total ? <> / <b>{total}</b></> : null} cars
-          </div>
-          <div className="grid">
-            {cars.map((c, i) => <Card key={c.id ?? `${c.make}-${c.model}-${i}`} car={c} />)}
-          </div>
+        {err && <div className="error">Error: {err}</div>}
 
-          <div style={{display:"flex", justifyContent:"center", margin:"16px 0"}}>
-            {canLoadMore && !loading && (
-              <button onClick={() => load(false)} style={{padding:"10px 14px", borderRadius:10, border:"1px solid #111827", background:"#111827", color:"#fff"}}>
-                Load more
-              </button>
-            )}
-            {loading && <div className="loading">Loading…</div>}
-          </div>
-        </>
-      )}
+        {!err && (
+          <>
+            <div className="count">Showing <b>{cars.length}</b>{total ? <> / <b>{total}</b></> : null} cars</div>
+
+            <div className="grid">
+              {cars.map((c, i) => <CarCard key={c.id ?? `${c.make}-${c.model}-${i}`} car={c} />)}
+              {loading && !cars.length && Array.from({length: 8}).map((_,i)=><SkeletonCard key={i} />)}
+            </div>
+
+            <div className="actions">
+              {canLoadMore && !loading && (
+                <button className="btn" onClick={() => load(false)}>Load more</button>
+              )}
+              {loading && <div className="loading">Loading…</div>}
+              {!loading && !cars.length && <div className="empty">No cars match your filters.</div>}
+            </div>
+          </>
+        )}
+      </main>
+
+      <footer className="footer">
+        <span>© {new Date().getFullYear()} VINFREAK</span>
+      </footer>
     </div>
   );
 }
