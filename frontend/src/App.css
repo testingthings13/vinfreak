@@ -40,3 +40,34 @@
 .read-the-docs {
   color: #888;
 }
+/* --- vinfreak grid styles --- */
+.container{max-width:1200px;margin:0 auto;padding:24px}
+h1{font-size:24px;margin-bottom:16px}
+.error{color:crimson;margin:12px 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
+.car-card{display:block;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;text-decoration:none;color:inherit;background:#fff}
+.car-card .thumb{position:relative;height:160px;background:#f3f4f6}
+.car-card .thumb .brand{position:absolute;top:8px;left:8px;height:28px;opacity:.9}
+.car-card .meta{padding:12px}
+.car-card .title{font-weight:600;margin-bottom:6px;min-height:40px}
+.car-card .sub{display:flex;gap:8px;color:#6b7280;font-size:14px;margin-bottom:6px}
+.car-card .price{font-size:18px;font-weight:700}
+/* --- vinfreak grid styles --- */
+.container{max-width:1200px;margin:0 auto;padding:24px}
+h1{font-size:24px;margin-bottom:16px}
+.error{color:crimson;margin:12px 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
+.car-card{display:block;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;text-decoration:none;color:inherit;background:#fff}
+.car-card .thumb{position:relative;height:160px;background:#f3f4f6}
+.car-card .thumb .brand{position:absolute;top:8px;left:8px;height:28px;opacity:.9}
+.car-card .meta{padding:12px}
+.car-card .title{font-weight:600;margin-bottom:6px;min-height:40px}
+.car-card .sub{display:flex;gap:8px;color:#6b7280;font-size:14px;margin-bottom:6px}
+.car-card .price{font-size:18px;font-weight:700}
+
+/* --- filters --- */
+.filters{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin:12px 0}
+.filters input,.filters select{padding:8px;border:1px solid #d1d5db;border-radius:8px}
+.filters button{padding:8px 12px;border:1px solid #111827;background:#111827;color:#fff;border-radius:8px;cursor:pointer}
+.filters button:last-child{background:#6b7280;border-color:#6b7280}
+@media (max-width: 800px){ .filters{grid-template-columns:repeat(2,minmax(0,1fr));} }
