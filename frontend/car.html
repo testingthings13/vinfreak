@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>VINFREAK — Car Detail</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 text-gray-900 min-h-screen">
+  <div class="max-w-6xl mx-auto p-6">
+    <a href="index.html" class="inline-flex items-center gap-2 text-sm text-blue-700 underline mb-4">← Back to listings</a>
+    <div id="content" class="bg-white rounded-2xl shadow overflow-hidden">
+      <div class="p-6">Loading…</div>
+    </div>
+  </div>
+
+  <script>
+    const API = 'http://127.0.0.1:8000';
+    const $ = (s, el=document) => el.querySelector(s);
+
+    function qs(name){return new URL(location.href).searchParams.get(name)}
+    function money(n, curr){ if(n==null) return ''; const v=new Intl.NumberFormat('en-US',{style:'currency',currency:curr||'USD'}).format(n); return v;}
+    function row(label, value){ if(!value && value!==0) return ''; return `<div class="flex justify-between py-2 border-b border-gray-100"><div class="text-gray-500">${label}</div><div class="font-medium text-right max-w-[65%]">${value}</div></div>` }
+
+    async function fetchCar() {
+      const id = qs('id'); const vin = qs('vin');
+      let res = null;
+      if (id) res = await fetch(`${API}/cars/${encodeURIComponent(id)}`);
+      else if (vin) res = await fetch(`${API}/cars/by_vin/${encodeURIComponent(vin)}`);
+      else return $("#content").innerHTML = '<div class="p-6 text-red-600">Missing id or VIN.</div>';
+
+      if (!res.ok){ const t = await res.text(); $("#content").innerHTML = `<div class="p-6 text-red-600">Error ${res.status}: ${t}</div>`; return; }
+      const c = await res.json();
+
+      // GALLERY
+      const images = Array.isArray(c.images) && c.images.length ? c.images : (c.image_url?[c.image_url]:[]);
+      const main = images[0] || 'https://picsum.photos/seed/car/1200/800';
+      const thumbs = images.map((u,i)=>`<img data-idx="${i}" src="${u}" class="w-28 h-20 object-cover rounded-lg border cursor-pointer">`).join('');
+
+      const header = `
+        <div class="md:flex">
+          <div class="md:w-1/2">
+            <img id="mainImg" src="${main}" class="w-full h-80 object-cover">
+            <div id="thumbs" class="flex flex-wrap gap-2 p-3">${thumbs}</div>
+          </div>
+          <div class="p-6 md:w-1/2">
+            <h1 class="text-2xl font-bold">${[c.year,c.make,c.model].filter(Boolean).join(' ')}${c.trim ? ' · '+c.trim:''}</h1>
+            <div class="text-xl mt-2 font-semibold">${money(c.price, c.currency)}</div>
+            <div class="text-sm text-gray-600 mt-1">${[c.city,c.state].filter(Boolean).join(', ')} ${c.location_address ? ('· '+c.location_address):''}</div>
+            ${c.url ? `<a href="${c.url}" target="_blank" rel="noopener" class="inline-block mt-3 text-blue-600 underline">View source</a>`: ''}
+          </div>
+        </div>`;
+
+      const specs = `
+        <div class="grid md:grid-cols-2 gap-4 p-6">
+          ${row('Title', c.title)}
+          ${row('VIN', c.vin)}
+          ${row('Auction Status', c.auction_status)}
+          ${row('Ends', c.end_time)}
+          ${row('Time Left', c.time_left)}
+          ${row('Views', c.number_of_views)}
+          ${row('Bids', c.number_of_bids)}
+          ${row('Engine', c.engine)}
+          ${row('Transmission', c.transmission)}
+          ${row('Drivetrain', c.drivetrain)}
+          ${row('Body Style', c.body_type)}
+          ${row('Exterior', c.exterior_color)}
+          ${row('Interior', c.interior_color)}
+          ${row('Fuel', c.fuel_type)}
+          ${row('Mileage', c.mileage!=null ? Number(c.mileage).toLocaleString()+' mi':'')}
+          ${row('Price', money(c.price, c.currency))}
+          ${row('Seller Type', c.seller_type)}
+          ${row('Seller', c.seller_name)}
+          ${row('Seller URL', c.seller_url ? `<a class="text-blue-600 underline" target="_blank" href="${c.seller_url}">${c.seller_url}</a>`:'')}
+          ${row('Location URL', c.location_url ? `<a class="text-blue-600 underline" target="_blank" href="${c.location_url}">${c.location_url}</a>`:'')}
+          ${row('Source', c.source)}
+          ${row('Posted At', c.posted_at ? new Date(c.posted_at).toLocaleString() : '')}
+        </div>`;
+
+      const blocks = ([
+        ['Highlights', c.highlights],
+        ['Equipment', c.equipment],
+        ['Modifications', c.modifications],
+        ['Known Flaws', c.known_flaws],
+        ['Service History', c.service_history],
+        ['Ownership History', c.ownership_history],
+        ['Seller Notes', c.seller_notes],
+        ['Other Items', c.other_items],
+        ['Description', c.description],
+      ]).map(([title,text]) => text ? `
+        <section class="px-6 pb-6">
+          <h2 class="text-lg font-semibold mb-2">${title}</h2>
+          <div class="text-gray-800 whitespace-pre-wrap">${text}</div>
+        </section>` : '').join('');
+
+      $("#content").innerHTML = header + specs + blocks;
+
+      // gallery interactions
+      const mainImg = $("#mainImg"); const thumbsEl = $("#thumbs");
+      thumbsEl?.addEventListener('click', (e) => {
+        const t = e.target; if (t.tagName==='IMG' && t.dataset.idx){ mainImg.src = images[+t.dataset.idx]; }
+      });
+    }
+
+    fetchCar();
+  </script>
+</body>
+</html>
