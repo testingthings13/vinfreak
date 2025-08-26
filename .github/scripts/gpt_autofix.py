@@ -2,7 +2,7 @@ import os, sys
 from pathlib import Path
 from openai import OpenAI
 
-MODEL = "gpt-4.1-mini"  # use "gpt-4.1" for maximum quality
+MODEL = "gpt-4.1-mini"  # use "gpt-4.1" for more thorough reasoning
 
 SYSTEM = """You are a senior full-stack engineer.
 Repo: React/Vite frontend (/frontend) + FastAPI backend (/backend).
@@ -15,7 +15,11 @@ Return ONLY unified diff patches in ```diff fences, with correct paths from repo
 """
 
 PROMPT = """Context:
+{ctx}
 
+csharp
+Copy
+Edit
 
 Produce one or more UNIFIED DIFF patches that:
 - Make /frontend build with Vite (using import.meta.env.VITE_API_BASE).
