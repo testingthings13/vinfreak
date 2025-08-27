@@ -1,12 +1,10 @@
-export default function SkeletonCard(){
+export default function SkeletonCard() {
   return (
-    <div className="card sk">
-      <div className="img sk-anim" />
-      <div className="body">
-        <div className="line sk-anim" style={{width:"70%"}}/>
-        <div className="line sk-anim" style={{width:"40%"}}/>
-        <div className="line sk-anim" style={{width:"55%"}}/>
-      </div>
+    <div className="card glass skeleton">
+      <div className="sk sk-img" />
+      <div className="sk sk-line w70" />
+      <div className="sk sk-line w50" />
+      <div className="sk sk-line w90" />
     </div>
   );
 }

@@ -1,15 +1,9 @@
-__pycache__/
-*.py[cod]
-.venv/
+frontend/node_modules/
+frontend/dist/
+frontend/build/
+*.log
+frontend/.env.local
 .env
-*.sqlite3
-node_modules/
-dist/
-build/
-.env.local
-
-# archives
-*.tar.gz
-
-# allow example env
-!frontend/.env.example
+.vscode/
+.idea/
+.DS_Store
